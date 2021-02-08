@@ -2,7 +2,7 @@
   "name": "habitica quick access",
   "description": "Get quick access to your todo list and dailies",
   "version": "0.1",
-  "author": "Aras",
+  "author": "Aras(https://github.com/Aras14HD)",
   "manifest_version": 3,
   "permissions": ["storage"],
   "background": {
