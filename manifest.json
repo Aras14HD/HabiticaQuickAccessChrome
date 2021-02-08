@@ -1,0 +1,20 @@
+{
+  "name": "habitica quick access",
+  "description": "Get quick access to your todo list and dailies",
+  "version": "0.1",
+  "author": "Aras",
+  "manifest_version": 3,
+  "permissions": ["storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+
+    }
+  },
+  "icons": {
+
+  }
+}
