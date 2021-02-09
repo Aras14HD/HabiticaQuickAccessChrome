@@ -3,14 +3,25 @@
     <meta charset="UTF-8">
     <title>Quick access</title>
     <link rel="stylesheet" href="popup.css">
-    <script src="popup.js" type=text/javascript></script>
     <script src="jquery.js" type=text/javascript></script>
+    <script src="popup.js" type=text/javascript></script>
   </head>
   <body>
-    <form name="tokens">
+    <form name="tokens" id="tokens">
       <input type="text" name="ID">
       <input type="text" name="API">
       <input type="submit" value="Set" id="submit">
     </form>
+    <div class="tabs inline">
+      <button type="button" id="todo">ToDo</button>
+      <button type="button" id="dailies">Dailies</button>
+      <button type="button" id="habits">Habits</button>
+    </div>
+    <div class="tasks">
+      <h3 id="title"></h3>
+      <div id="task">
+        Loading
+      </div>
+    </div>
   </body>
 </html>
