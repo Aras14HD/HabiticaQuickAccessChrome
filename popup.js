@@ -84,10 +84,12 @@ function displayData() {
         data = value;
       }
 
+      html = "";
+      ids = [];
+      lids = [];
       switch (tab) {
         case 0:
           var title = "To Do's";
-          html = "";
           for (i = 0; i < data.length; i++) {
             //check if the task is a todo
             for (const [key, value] of Object.entries(data[i])) {
@@ -96,21 +98,55 @@ function displayData() {
               }
             }
             if (type == "todo") {
+              checklist_o = {};
               //get the needed information out of the object
               for (const [key, value] of Object.entries(data[i])) {
-                if (key === "text") {
-                  text = value;
+                switch (key) {
+                  case "text":
+                    text = value;
+                    break
+                  case "checklist":
+                    checklist_o = value;
+                    break
+                  case "id":
+                    id = value;
+                    break
                 }
               }
-              console.log("added task");
+              list = "";
+              if (checklist_o.length > 0) {
+                //if the id were to be located after the checklist this code would break
+                list = "<div class='checklist'><button type='button' id='lbutton-" + id + "'>" + checklist_o.length + "</button><div id='list-" + id + "' style='display: block'>";
+                for (const [key, value] of Object.entries(checklist_o)) {
+                  checklist = value;
+                  for (const [key1, value1] of Object.entries(checklist)) {
+                    switch (key1) {
+                      case "text":
+                        ltext = value1;
+                        break;
+                      case "id":
+                        lid = value1;
+                        break;
+                      case "completed":
+                        if (value1 === "false") {
+                          lcompleted = ""
+                        } else lcompleted = "";
+                    }
+                  }
+                  list += "<div class='litem'><input type='checkbox' id='litem-" + lid + "'>" + ltext + "</div>"
+                  lids.push(lid)
+                }
+                list += "</div></div>";
+              }
               //construct html
-              html += "<div class='task'><div class='left-control'>  </div><div class='content'><div class='title' id='task_title'>" + text + "</div></div></div>"
+              html += "<div class='task'><div class='left-control'> </div><div class='content'><div class='title' id='task_title'>" + text + "</div>" + list + "</div></div>"
+              console.log("added task");
+              ids.push(id);
             }
           }
           break
         case 1:
           var title = "Dailies";
-          html = "";
           for (i = 0; i < data.length; i++) {
             for (const [key, value] of Object.entries(data[i])) {
               if (key === "type") {
@@ -124,7 +160,6 @@ function displayData() {
           break
         case 2:
           var title = "Habits";
-          html = "";
           for (i = 0; i < data.length; i++) {
             for (const [key, value] of Object.entries(data[i])) {
               if (key === "type") {
@@ -138,6 +173,37 @@ function displayData() {
       }
       document.getElementById("title").innerHTML = title;
       document.getElementById("task").innerHTML = html;
+      //EventListeners for opening/closing of checklists (and in future completing tasks)
+      for (i = 0; i < ids.length; i++) {
+        id = ids[i]
+        var lbutton = document.getElementById("lbutton-" + id);
+        if (lbutton !== null) {
+          lbutton.addEventListener('click', function() {
+            var list = document.getElementById(event.target.id.replace('lbutton', 'list'));
+            if (list.style.display === "block") {
+              list.style.display = "none";
+            } else {
+              list.style.display = "block"
+            }
+          });
+        }
+
+      }
+      //EventListeners for checking/unchecking checkboxes
+      for (i = 0; i < ids.length; i++) {
+        id = lids[i]
+        var lbutton = document.getElementById("litem-" + id);
+        lbutton.addEventListener('click', function() {
+          item = document.getElementById(event.target.id);
+          id = event.target.id.replace('litem-', '');
+          if (item.checked) {
+
+          } else {
+
+          }
+
+        });
+      }
     })
   }
 }
