@@ -1,9 +1,27 @@
 #tokens {
   display : none
 }
-.inline {
-  display : block
+.tabs {
+  display: grid;
+  grid-template-columns: 60px 60px 60px;
+}
+.task {
+  display: grid;
+  grid-template-columns: 20px auto;
+}
+.button svg {
+  visibility: hidden;
+  height: 16px;
+  width: 16px
+}
+.button:hover svg {
+  visibility: visible;
 }
 .checklist {
-  display: block
+  display: flex;
+  flex-direction: column;
+}
+.checklist litem {
+  display: flex;
+  flex-direction: row;
 }

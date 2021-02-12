@@ -2,11 +2,11 @@ document.addEventListener('DOMContentLoaded', function() {
   //init values
   playerUserID = "";
   playerAPItoken = "";
-  tab = 0;
-  //read UserID and APItoken from storage
-  chrome.storage.sync.get(['userid', 'token'], function(result) {
+  //read Settings
+  chrome.storage.sync.get(['userid', 'token', 'tab'], function(result) {
     playerUserID = result.userid;
     playerAPItoken = result.token;
+    tab = result.tab;
     console.log('UserID currently is ' + playerUserID);
     displayData();
     update()
@@ -20,17 +20,23 @@ document.addEventListener('DOMContentLoaded', function() {
   //tab selection
   var todo = document.getElementById('todo');
   todo.addEventListener('click', function() {
-      tab = 0
+      tab = 0;
+      chrome.storage.sync.set({tab: tab}, function() {
+      });
       displayData();
   });
   var dailies = document.getElementById('dailies');
   dailies.addEventListener('click', function() {
-      tab = 1
+      tab = 1;
+      chrome.storage.sync.set({tab: tab}, function() {
+      });
       displayData();
   });
   var habits = document.getElementById('habits');
   habits.addEventListener('click', function() {
-      tab = 2
+      tab = 2;
+      chrome.storage.sync.set({tab: tab}, function() {
+      });
       displayData();
   });
 });
@@ -87,6 +93,7 @@ function displayData() {
       html = "";
       ids = [];
       lids = [];
+      lcids = [];
       switch (tab) {
         case 0:
           var title = "To Do's";
@@ -119,6 +126,7 @@ function displayData() {
                 list = "<div class='checklist'><button type='button' id='lbutton-" + id + "'>" + checklist_o.length + "</button><div id='list-" + id + "' style='display: block'>";
                 for (const [key, value] of Object.entries(checklist_o)) {
                   checklist = value;
+                  lc = false;
                   for (const [key1, value1] of Object.entries(checklist)) {
                     switch (key1) {
                       case "text":
@@ -128,18 +136,17 @@ function displayData() {
                         lid = value1;
                         break;
                       case "completed":
-                        if (value1 === "false") {
-                          lcompleted = ""
-                        } else lcompleted = "";
+                        lc = value1;
                     }
                   }
                   list += "<div class='litem'><input type='checkbox' id='litem-" + lid + "'>" + ltext + "</div>"
-                  lids.push(lid)
+                  lids.push(lid);
+                  if (lc) lcids.push(lid);
                 }
                 list += "</div></div>";
               }
               //construct html
-              html += "<div class='task'><div class='left-control'> </div><div class='content'><div class='title' id='task_title'>" + text + "</div>" + list + "</div></div>"
+              html += "<div class='task'><div class='left-control'><div class='button' id='button-" + id + "'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 10'><path fill-rule='evenodd' d='M4.662 9.832c-.312 0-.61-.123-.831-.344L0 5.657l1.662-1.662 2.934 2.934L10.534 0l1.785 1.529-6.764 7.893a1.182 1.182 0 0 1-.848.409l-.045.001'></path></svg></div></div><div class='content'><div class='title' id='task_title'>" + text + "</div>" + list + "</div></div>"
               console.log("added task");
               ids.push(id);
             }
@@ -154,7 +161,50 @@ function displayData() {
               }
             }
             if (type == "daily") {
-
+              checklist_o = {};
+              //get the needed information out of the object
+              for (const [key, value] of Object.entries(data[i])) {
+                switch (key) {
+                  case "text":
+                    text = value;
+                    break
+                  case "checklist":
+                    checklist_o = value;
+                    break
+                  case "id":
+                    id = value;
+                    break
+                }
+              }
+              list = "";
+              if (checklist_o.length > 0) {
+                //if the id were to be located after the checklist this code would break
+                list = "<div class='checklist'><button type='button' id='lbutton-" + id + "'>" + checklist_o.length + "</button><div id='list-" + id + "' style='display: block'>";
+                for (const [key, value] of Object.entries(checklist_o)) {
+                  checklist = value;
+                  lc = false;
+                  for (const [key1, value1] of Object.entries(checklist)) {
+                    switch (key1) {
+                      case "text":
+                        ltext = value1;
+                        break;
+                      case "id":
+                        lid = value1;
+                        break;
+                      case "completed":
+                        lc = value1;
+                    }
+                  }
+                  list += "<div class='litem'><input type='checkbox' id='litem-" + lid + "'>" + ltext + "</div>"
+                  lids.push(lid);
+                  if (lc) lcids.push(lid);
+                }
+                list += "</div></div>";
+              }
+              //construct html
+              html += "<div class='task'><div class='left-control'><div class='button' id='button-" + id + "'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 10'><path fill-rule='evenodd' d='M4.662 9.832c-.312 0-.61-.123-.831-.344L0 5.657l1.662-1.662 2.934 2.934L10.534 0l1.785 1.529-6.764 7.893a1.182 1.182 0 0 1-.848.409l-.045.001'></path></svg></div></div><div class='content'><div class='title' id='task_title'>" + text + "</div>" + list + "</div></div>"
+              console.log("added task");
+              ids.push(id);
             }
           }
           break
@@ -172,7 +222,8 @@ function displayData() {
           }
       }
       document.getElementById("title").innerHTML = title;
-      document.getElementById("task").innerHTML = html;
+      document.getElementById("tasks").innerHTML = html;
+      console.log("changed html");
       //EventListeners for opening/closing of checklists (and in future completing tasks)
       for (i = 0; i < ids.length; i++) {
         id = ids[i]
@@ -187,21 +238,66 @@ function displayData() {
             }
           });
         }
+        var button = document.getElementById("button-" + id);
+        button.addEventListener('click', function() {
+          var button = event.target.parentNode;
+          id = button.id.replace('button-', '');
+          switch (button.className) {
+            case "button":
+              direction = "up";
+              break;
+            case "habit-up":
+              direction = "up";
+              break;
+            case "habit-down":
+              direction = "down"
+          }
+          $.ajax({
+            url: 'https://habitica.com/api/v3/tasks/' + id + '/score/' + direction,
+            type: 'POST',
+            cache: false,
+            dataType: 'json',
+            beforeSend: function(xhr) {
+              xhr.setRequestHeader('x-client', '456b5feb-bd5c-4046-b5b3-83606a1f6a76-HabitcaQuickAccess');
+              xhr.setRequestHeader('x-api-user', playerUserID);
+              xhr.setRequestHeader('x-api-key',  playerAPItoken);
+            },
+            success: function() {
+              button.parentNode.parentNode.style.display = "none";
+              window.setTimeout(update(), 500)
+            }
+          });
+        });
 
       }
+
+      for (i = 0; i < lcids.length; i++) {
+        id = lcids[i];
+        var lbutton = document.getElementById('litem-' + id);
+        lbutton.checked = true;
+      }
       //EventListeners for checking/unchecking checkboxes
-      for (i = 0; i < ids.length; i++) {
-        id = lids[i]
+      for (i = 0; i < lids.length; i++) {
+        id = lids[i];
         var lbutton = document.getElementById("litem-" + id);
         lbutton.addEventListener('click', function() {
           item = document.getElementById(event.target.id);
-          id = event.target.id.replace('litem-', '');
-          if (item.checked) {
-
-          } else {
-
-          }
-
+          lid = event.target.id.replace('litem-', '');
+          id = item.parentNode.parentNode.id.replace('list-', '');
+          checked = item.checked;
+          $.ajax({
+            url: 'https://habitica.com/api/v3/tasks/' + id + '/checklist/' + lid + '/score',
+            type: 'POST',
+            cache: false,
+            dataType: 'json',
+            beforeSend: function(xhr) {
+              xhr.setRequestHeader('x-client', '456b5feb-bd5c-4046-b5b3-83606a1f6a76-HabitcaQuickAccess');
+              xhr.setRequestHeader('x-api-user', playerUserID);
+              xhr.setRequestHeader('x-api-key',  playerAPItoken);
+            },
+            success: item.checked = !checked,
+            error: item.checked = checked,
+          });
         });
       }
     })
