@@ -2,6 +2,11 @@ document.addEventListener('DOMContentLoaded', function() {
   //init values
   playerUserID = "";
   playerAPItoken = "";
+  chrome.storage.sync.get(['clv'], function(result) {
+    if (result.clv) {
+      clv = "block";
+    } else clv = "none";
+  });
   //read Settings
   chrome.storage.sync.get(['userid', 'token', 'tab'], function(result) {
     playerUserID = result.userid;
@@ -106,6 +111,7 @@ function displayData() {
             }
             if (type == "todo") {
               checklist_o = {};
+              isDue = true;
               //get the needed information out of the object
               for (const [key, value] of Object.entries(data[i])) {
                 switch (key) {
@@ -118,12 +124,37 @@ function displayData() {
                   case "id":
                     id = value;
                     break
+                  case "value":
+                    health = value;
+                    break
+                  case "isDue":
+                    isDue = value
+                    break
+                }
+              }
+              if (!isDue) {
+                color = "task-disabled-task";
+              } else {
+                if (health > 11) {
+                  color = "task-"
+                } else if (health > 5) {
+                  color = "task-better"
+                } else if (health > 0) {
+                  color = "task-good"
+                } else if (health == 0) {
+                  color = "task-neutral"
+                } else if (health > -9) {
+                  color = "task-bad"
+                } else if (health > -16) {
+                  color = "task-worse"
+                } else {
+                  color = "task-worst"
                 }
               }
               list = "";
               if (checklist_o.length > 0) {
                 //if the id were to be located after the checklist this code would break
-                list = "<div class='checklist'><button type='button' id='lbutton-" + id + "'>" + checklist_o.length + "</button><div id='list-" + id + "' style='display: block'>";
+                list = "<div class='checklist'><button type='button' id='lbutton-" + id + "'>" + checklist_o.length + "</button><div id='list-" + id + "' style='display: " + clv + "'>";
                 for (const [key, value] of Object.entries(checklist_o)) {
                   checklist = value;
                   lc = false;
@@ -146,7 +177,7 @@ function displayData() {
                 list += "</div></div>";
               }
               //construct html
-              html += "<div class='task'><div class='left-control'><div class='button' id='button-" + id + "'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 10'><path fill-rule='evenodd' d='M4.662 9.832c-.312 0-.61-.123-.831-.344L0 5.657l1.662-1.662 2.934 2.934L10.534 0l1.785 1.529-6.764 7.893a1.182 1.182 0 0 1-.848.409l-.045.001'></path></svg></div></div><div class='content'><div class='title' id='task_title'>" + text + "</div>" + list + "</div></div>"
+              html += "<div class='task'><div class='left-control " + color + "'><div class='button' id='button-" + id + "'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 10'><path fill-rule='evenodd' d='M4.662 9.832c-.312 0-.61-.123-.831-.344L0 5.657l1.662-1.662 2.934 2.934L10.534 0l1.785 1.529-6.764 7.893a1.182 1.182 0 0 1-.848.409l-.045.001'></path></svg></div></div><div class='content'><div class='title' id='task_title'>" + text + "</div>" + list + "</div></div>"
               console.log("added task");
               ids.push(id);
             }
@@ -162,6 +193,7 @@ function displayData() {
             }
             if (type == "daily") {
               checklist_o = {};
+              isDue = true;
               //get the needed information out of the object
               for (const [key, value] of Object.entries(data[i])) {
                 switch (key) {
@@ -174,12 +206,37 @@ function displayData() {
                   case "id":
                     id = value;
                     break
+                  case "value":
+                    health = value;
+                    break
+                  case "isDue":
+                    isDue = value
+                    break
+                }
+              }
+              if (!isDue) {
+                color = "task-disabled-task";
+              } else {
+                if (health > 11) {
+                  color = "task-"
+                } else if (health > 5) {
+                  color = "task-better"
+                } else if (health > 0) {
+                  color = "task-good"
+                } else if (health == 0) {
+                  color = "task-neutral"
+                } else if (health > -9) {
+                  color = "task-bad"
+                } else if (health > -16) {
+                  color = "task-worse"
+                } else {
+                  color = "task-worst"
                 }
               }
               list = "";
               if (checklist_o.length > 0) {
                 //if the id were to be located after the checklist this code would break
-                list = "<div class='checklist'><button type='button' id='lbutton-" + id + "'>" + checklist_o.length + "</button><div id='list-" + id + "' style='display: block'>";
+                list = "<div class='checklist'><button type='button' id='lbutton-" + id + "'>" + checklist_o.length + "</button><div id='list-" + id + "' style='display: " + clv + "'>";
                 for (const [key, value] of Object.entries(checklist_o)) {
                   checklist = value;
                   lc = false;
@@ -202,7 +259,7 @@ function displayData() {
                 list += "</div></div>";
               }
               //construct html
-              html += "<div class='task'><div class='left-control'><div class='button' id='button-" + id + "'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 10'><path fill-rule='evenodd' d='M4.662 9.832c-.312 0-.61-.123-.831-.344L0 5.657l1.662-1.662 2.934 2.934L10.534 0l1.785 1.529-6.764 7.893a1.182 1.182 0 0 1-.848.409l-.045.001'></path></svg></div></div><div class='content'><div class='title' id='task_title'>" + text + "</div>" + list + "</div></div>"
+              html += "<div class='task'><div class='left-control " + color + "'><div class='button' id='button-" + id + "'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 10'><path fill-rule='evenodd' d='M4.662 9.832c-.312 0-.61-.123-.831-.344L0 5.657l1.662-1.662 2.934 2.934L10.534 0l1.785 1.529-6.764 7.893a1.182 1.182 0 0 1-.848.409l-.045.001'></path></svg></div></div><div class='content'><div class='title' id='task_title'>" + text + "</div>" + list + "</div></div>"
               console.log("added task");
               ids.push(id);
             }
@@ -217,7 +274,72 @@ function displayData() {
               }
             }
             if (type == "habit") {
-
+              checklist_o = {};
+              //get the needed information out of the object
+              for (const [key, value] of Object.entries(data[i])) {
+                switch (key) {
+                  case "text":
+                    text = value;
+                    break
+                  case "checklist":
+                    checklist_o = value;
+                    break
+                  case "id":
+                    id = value;
+                    break
+                  case "value":
+                    health = value;
+                    break
+                  case "up":
+                    up = value;
+                    break
+                  case "down":
+                    down = value;
+                    break
+                }
+              }
+              if (!up) {
+                colorU = "task-disabled-task";
+              } else {
+                if (health > 11) {
+                  colorU = "task-"
+                } else if (health > 5) {
+                  colorU = "task-better"
+                } else if (health > 0) {
+                  colorU = "task-good"
+                } else if (health == 0) {
+                  colorU = "task-neutral"
+                } else if (health > -9) {
+                  colorU = "task-bad"
+                } else if (health > -16) {
+                  colorU = "task-worse"
+                } else {
+                  colorU = "task-worst"
+                }
+              }
+              if (!down) {
+                colorD = "task-disabled-task";
+              } else {
+                if (health > 11) {
+                  colorD = "task-best"
+                } else if (health > 5) {
+                  colorD = "task-better"
+                } else if (health > 0) {
+                  colorD = "task-good"
+                } else if (health == 0) {
+                  colorD = "task-neutral"
+                } else if (health > -9) {
+                  colorD = "task-bad"
+                } else if (health > -16) {
+                  colorD = "task-worse"
+                } else {
+                  colorD = "task-worst"
+                }
+              }
+              //construct html
+              html += "<div class='habit'><div class='left-control " + colorU + "'><div class='habit-up' id='button-" + id + "'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><path fill-rule='evenodd' d='M6 4V0H4v4H0v2h4v4h2V6h4V4H6z'></path></svg></div></div><div class='content'><div class='title' id='task_title'>" + text + "</div></div><div class='right-control " + colorD + "'><div class='habit-down' id='button-" + id + "'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 2'><path fill-rule='evenodd' d='M0 0h10v2H0z'></path></svg></div></div></div>"
+              console.log("added task");
+              ids.push(id);
             }
           }
       }
@@ -238,6 +360,7 @@ function displayData() {
             }
           });
         }
+        //EventListeners for scoring tasks
         var button = document.getElementById("button-" + id);
         button.addEventListener('click', function() {
           var button = event.target.parentNode;
@@ -263,7 +386,39 @@ function displayData() {
               xhr.setRequestHeader('x-api-key',  playerAPItoken);
             },
             success: function() {
-              button.parentNode.parentNode.style.display = "none";
+              if (button.className == "button") {
+                button.parentNode.parentNode.style.display = "none";
+              }
+              for (const [key, value] of Object.entries(response)) {
+                switch (key) {
+                  case "delta":
+                    delta = +value.toFixed(2);
+                    break;
+                  case "_tmp":
+                    for (const [key1, value1] of Object.entries(value)) {
+                      switch (key1) {
+                        case "quest":
+                          for (const [key2, value2] of Object.entries(value1)) {
+                            switch (key2) {
+                              case "progressDelta":
+                                pDelta = +value2.toFixed(2);
+                                break;
+                              case "collection":
+                                collection = +value2.toFixed(2);
+                            }
+                          }
+                          break;
+                        case "drop":
+                          drop = value1;
+                      }
+                    }
+                }
+                MpDelta = "";
+                Mcollection = "";
+                if (pDelta) MpDelta = ", dealt " + pDelta + " Damage";
+                if (collection) Mcollection = ", got " + collection + " Quest items";
+                alert("You got " + delta + "Exp" + MpDelta + Mcollection);
+              }
               window.setTimeout(update(), 500)
             }
           });
