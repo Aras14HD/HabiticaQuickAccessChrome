@@ -351,8 +351,8 @@ function displayData() {
         id = ids[i]
         var lbutton = document.getElementById("lbutton-" + id);
         if (lbutton !== null) {
-          lbutton.addEventListener('click', function() {
-            var list = document.getElementById(event.target.id.replace('lbutton', 'list'));
+          lbutton.addEventListener('click', function(e) {
+            var list = document.getElementById(e.target.id.replace('lbutton', 'list'));
             if (list.style.display === "block") {
               list.style.display = "none";
             } else {
@@ -362,8 +362,8 @@ function displayData() {
         }
         //EventListeners for scoring tasks
         var button = document.getElementById("button-" + id);
-        button.addEventListener('click', function() {
-          var button = event.target.parentNode;
+        button.addEventListener('click', function(e) {
+          var button = e.target.parentNode;
           id = button.id.replace('button-', '');
           switch (button.className) {
             case "button":
@@ -435,9 +435,9 @@ function displayData() {
       for (i = 0; i < lids.length; i++) {
         id = lids[i];
         var lbutton = document.getElementById("litem-" + id);
-        lbutton.addEventListener('click', function() {
-          item = document.getElementById(event.target.id);
-          lid = event.target.id.replace('litem-', '');
+        lbutton.addEventListener('click', function(e) {
+          item = document.getElementById(e.target.id);
+          lid = e.target.id.replace('litem-', '');
           id = item.parentNode.parentNode.id.replace('list-', '');
           checked = item.checked;
           $.ajax({
