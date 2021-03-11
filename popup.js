@@ -3,9 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
   playerUserID = "";
   playerAPItoken = "";
   chrome.storage.sync.get(['clv'], function(result) {
-    if (result.clv) {
-      clv = "block";
-    } else clv = "none";
+    clv = result.clv ? "block" : "none";
   });
   //read Settings
   chrome.storage.sync.get(['userid', 'token', 'tab'], function(result) {
