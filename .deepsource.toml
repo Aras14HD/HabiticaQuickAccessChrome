@@ -1,0 +1,14 @@
+version = 1
+
+test_patterns = [
+    "popup.*",
+    "options.*"
+]
+
+[[analyzers]]
+name = "javascript"
+enabled = true
+
+  [analyzers.meta]
+  environment = ["browser"]
+  style_guide = "standard"
