@@ -1,5 +1,14 @@
 #tokens {
-  display : none
+  display: none;
+}
+#title {
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+/*Layout*/
+.tasks {
+  background-color: #edecee;
+  padding: 2px;
 }
 .tabs {
   display: grid;
@@ -8,14 +17,29 @@
 .task {
   display: grid;
   grid-template-columns: 20px auto;
+  border: 1px solid;
+  border-color: #edecee;
+  background-color: white;
+}
+.habit {
+  display: grid;
+  grid-template-columns: 20px auto 20px;
+  border: 1px solid;
+  border-color: #edecee;
+  background-color: white;
 }
 .button svg {
   visibility: hidden;
   height: 16px;
-  width: 16px
+  width: 16px;
 }
-.button:hover svg {
-  visibility: visible;
+.habit-up svg {
+  height: 16px;
+  width: 16px;
+}
+.habit-down svg {
+  height: 16px;
+  width: 16px;
 }
 .checklist {
   display: flex;
@@ -24,4 +48,47 @@
 .checklist litem {
   display: flex;
   flex-direction: row;
+}
+/*show on hover*/
+.button:hover svg {
+  visibility: visible;
+}
+/*task colors*/
+.button {
+  background: hsla(0, 0%, 100%, 0.5);
+}
+.task-best {
+  background-color: #50b5e9;
+}
+.task-better {
+  background-color: #3bcad7;
+}
+.task-good {
+  background-color: #24cc8f;
+}
+.task-neutral {
+  background-color: #ffbe5d;
+}
+.task-bad {
+  background-color: #ff944c;
+}
+.task-worse {
+  background-color: #ff6165;
+}
+.task-worst {
+  background-color: #de3f3f;
+}
+.task-disabled-task {
+  background-color: #878190;
+}
+.task-disabled-habit {
+  background-color: #070a0b;
+}
+.left-control {
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+}
+.right-control {
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
 }

@@ -1,95 +1,94 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener("DOMContentLoaded", function () {
   //init values
   playerUserID = "";
   playerAPItoken = "";
-  chrome.storage.sync.get(['clv'], function(result) {
+  chrome.storage.sync.get(["clv"], function (result) {
     if (result.clv) {
       clv = "block";
     } else clv = "none";
   });
   //read Settings
-  chrome.storage.sync.get(['userid', 'token', 'tab'], function(result) {
+  chrome.storage.sync.get(["userid", "token", "tab"], function (result) {
     playerUserID = result.userid;
     playerAPItoken = result.token;
     tab = result.tab;
-    console.log('UserID currently is ' + playerUserID);
+    console.log("UserID currently is " + playerUserID);
     displayData();
-    update()
+    update();
   });
   displayData();
   //EventListeners
-  var submit = document.getElementById('submit');
-  submit.addEventListener('click', function() {
-      setDetails();
+  var submit = document.getElementById("submit");
+  submit.addEventListener("click", function () {
+    setDetails();
   });
   //tab selection
-  var todo = document.getElementById('todo');
-  todo.addEventListener('click', function() {
-      tab = 0;
-      chrome.storage.sync.set({tab: tab}, function() {
-      });
-      displayData();
+  var todo = document.getElementById("todo");
+  todo.addEventListener("click", function () {
+    tab = 0;
+    chrome.storage.sync.set({ tab: tab }, function () {});
+    displayData();
   });
-  var dailies = document.getElementById('dailies');
-  dailies.addEventListener('click', function() {
-      tab = 1;
-      chrome.storage.sync.set({tab: tab}, function() {
-      });
-      displayData();
+  var dailies = document.getElementById("dailies");
+  dailies.addEventListener("click", function () {
+    tab = 1;
+    chrome.storage.sync.set({ tab: tab }, function () {});
+    displayData();
   });
-  var habits = document.getElementById('habits');
-  habits.addEventListener('click', function() {
-      tab = 2;
-      chrome.storage.sync.set({tab: tab}, function() {
-      });
-      displayData();
+  var habits = document.getElementById("habits");
+  habits.addEventListener("click", function () {
+    tab = 2;
+    chrome.storage.sync.set({ tab: tab }, function () {});
+    displayData();
   });
 });
 
 function update() {
   //AJAX request
   $.ajax({
-    url: 'https://habitica.com/api/v3/tasks/user',
-    type: 'GET',
-    dataType: 'json',
+    url: "https://habitica.com/api/v3/tasks/user",
+    type: "GET",
+    dataType: "json",
     cache: false,
-    beforeSend: function(xhr){
-      xhr.setRequestHeader('x-client', '456b5feb-bd5c-4046-b5b3-83606a1f6a76-HabitcaQuickAccess');
-      xhr.setRequestHeader('x-api-user', playerUserID);
-      xhr.setRequestHeader('x-api-key',  playerAPItoken);
+    beforeSend: function (xhr) {
+      xhr.setRequestHeader(
+        "x-client",
+        "d2195ddc-a540-4dad-b3d5-34fb1ba8d319-HabitcaQuickAccess"
+      );
+      xhr.setRequestHeader("x-api-user", playerUserID);
+      xhr.setRequestHeader("x-api-key", playerAPItoken);
     },
-    success: function(response) {
-      if (typeof response !== 'undefined') {
+    success: function (response) {
+      if (typeof response !== "undefined") {
         //convert object to array
         for (const [key, value] of Object.entries(response)) {
           if (key === "data") {
             data = value;
-            console.log("received tasks")
+            console.log("received tasks");
           }
         }
-        saveData(data)
-      } else errorlog()
-    }
+        saveData(data);
+      } else errorlog();
+    },
   });
 }
 function saveData(data) {
-  chrome.storage.local.set({tasks: data}, function() {
-    console.log('saved tasks')
+  chrome.storage.local.set({ tasks: data }, function () {
+    console.log("saved tasks");
   });
-  displayData()
+  displayData();
 }
 function displayData() {
   if (playerUserID == "" || playerAPItoken == "") {
     //show the form
     var form = document.getElementById("tokens");
     form.style.display = "block";
-
   } else {
     //hide the form
     var form = document.getElementById("tokens");
     form.style.display = "none";
     //get stored tasks
-    chrome.storage.local.get(['tasks'], function(result) {
+    chrome.storage.local.get(["tasks"], function (result) {
       //remove "tasks:" and convert to array
       for (const [key, value] of Object.entries(result)) {
         data = value;
@@ -117,44 +116,52 @@ function displayData() {
                 switch (key) {
                   case "text":
                     text = value;
-                    break
+                    break;
                   case "checklist":
                     checklist_o = value;
-                    break
+                    break;
                   case "id":
                     id = value;
-                    break
+                    break;
                   case "value":
                     health = value;
-                    break
+                    break;
                   case "isDue":
-                    isDue = value
-                    break
+                    isDue = value;
+                    break;
                 }
               }
               if (!isDue) {
                 color = "task-disabled-task";
               } else {
                 if (health > 11) {
-                  color = "task-"
+                  color = "task-";
                 } else if (health > 5) {
-                  color = "task-better"
+                  color = "task-better";
                 } else if (health > 0) {
-                  color = "task-good"
+                  color = "task-good";
                 } else if (health == 0) {
-                  color = "task-neutral"
+                  color = "task-neutral";
                 } else if (health > -9) {
-                  color = "task-bad"
+                  color = "task-bad";
                 } else if (health > -16) {
-                  color = "task-worse"
+                  color = "task-worse";
                 } else {
-                  color = "task-worst"
+                  color = "task-worst";
                 }
               }
               list = "";
               if (checklist_o.length > 0) {
-                //if the id were to be located after the checklist this code would break
-                list = "<div class='checklist'><button type='button' id='lbutton-" + id + "'>" + checklist_o.length + "</button><div id='list-" + id + "' style='display: " + clv + "'>";
+                list =
+                  "<div class='checklist'><button type='button' id='lbutton-" +
+                  id +
+                  "'>" +
+                  checklist_o.length +
+                  "</button><div id='list-" +
+                  id +
+                  "' style='display: " +
+                  clv +
+                  "'>";
                 for (const [key, value] of Object.entries(checklist_o)) {
                   checklist = value;
                   lc = false;
@@ -170,19 +177,33 @@ function displayData() {
                         lc = value1;
                     }
                   }
-                  list += "<div class='litem'><input type='checkbox' id='litem-" + lid + "'>" + ltext + "</div>"
+                  list +=
+                    "<div class='litem'><input type='checkbox' id='litem-" +
+                    lid +
+                    "'>" +
+                    ltext +
+                    "</div>";
                   lids.push(lid);
                   if (lc) lcids.push(lid);
                 }
                 list += "</div></div>";
               }
               //construct html
-              html += "<div class='task'><div class='left-control " + color + "'><div class='button' id='button-" + id + "'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 10'><path fill-rule='evenodd' d='M4.662 9.832c-.312 0-.61-.123-.831-.344L0 5.657l1.662-1.662 2.934 2.934L10.534 0l1.785 1.529-6.764 7.893a1.182 1.182 0 0 1-.848.409l-.045.001'></path></svg></div></div><div class='content'><div class='title' id='task_title'>" + text + "</div>" + list + "</div></div>"
+              html +=
+                "<div class='task'><div class='left-control " +
+                color +
+                "'><div class='button' id='button-" +
+                id +
+                "'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 10'><path fill-rule='evenodd' d='M4.662 9.832c-.312 0-.61-.123-.831-.344L0 5.657l1.662-1.662 2.934 2.934L10.534 0l1.785 1.529-6.764 7.893a1.182 1.182 0 0 1-.848.409l-.045.001'></path></svg></div></div><div class='content'><div class='title' id='task_title'>" +
+                text +
+                "</div>" +
+                list +
+                "</div></div>";
               console.log("added task");
               ids.push(id);
             }
           }
-          break
+          break;
         case 1:
           var title = "Dailies";
           for (i = 0; i < data.length; i++) {
@@ -199,44 +220,53 @@ function displayData() {
                 switch (key) {
                   case "text":
                     text = value;
-                    break
+                    break;
                   case "checklist":
                     checklist_o = value;
-                    break
+                    break;
                   case "id":
                     id = value;
-                    break
+                    break;
                   case "value":
                     health = value;
-                    break
+                    break;
                   case "isDue":
-                    isDue = value
-                    break
+                    isDue = value;
+                    break;
                 }
               }
               if (!isDue) {
                 color = "task-disabled-task";
               } else {
                 if (health > 11) {
-                  color = "task-"
+                  color = "task-";
                 } else if (health > 5) {
-                  color = "task-better"
+                  color = "task-better";
                 } else if (health > 0) {
-                  color = "task-good"
+                  color = "task-good";
                 } else if (health == 0) {
-                  color = "task-neutral"
+                  color = "task-neutral";
                 } else if (health > -9) {
-                  color = "task-bad"
+                  color = "task-bad";
                 } else if (health > -16) {
-                  color = "task-worse"
+                  color = "task-worse";
                 } else {
-                  color = "task-worst"
+                  color = "task-worst";
                 }
               }
               list = "";
               if (checklist_o.length > 0) {
                 //if the id were to be located after the checklist this code would break
-                list = "<div class='checklist'><button type='button' id='lbutton-" + id + "'>" + checklist_o.length + "</button><div id='list-" + id + "' style='display: " + clv + "'>";
+                list =
+                  "<div class='checklist'><button type='button' id='lbutton-" +
+                  id +
+                  "'>" +
+                  checklist_o.length +
+                  "</button><div id='list-" +
+                  id +
+                  "' style='display: " +
+                  clv +
+                  "'>";
                 for (const [key, value] of Object.entries(checklist_o)) {
                   checklist = value;
                   lc = false;
@@ -252,19 +282,33 @@ function displayData() {
                         lc = value1;
                     }
                   }
-                  list += "<div class='litem'><input type='checkbox' id='litem-" + lid + "'>" + ltext + "</div>"
+                  list +=
+                    "<div class='litem'><input type='checkbox' id='litem-" +
+                    lid +
+                    "'>" +
+                    ltext +
+                    "</div>";
                   lids.push(lid);
                   if (lc) lcids.push(lid);
                 }
                 list += "</div></div>";
               }
               //construct html
-              html += "<div class='task'><div class='left-control " + color + "'><div class='button' id='button-" + id + "'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 10'><path fill-rule='evenodd' d='M4.662 9.832c-.312 0-.61-.123-.831-.344L0 5.657l1.662-1.662 2.934 2.934L10.534 0l1.785 1.529-6.764 7.893a1.182 1.182 0 0 1-.848.409l-.045.001'></path></svg></div></div><div class='content'><div class='title' id='task_title'>" + text + "</div>" + list + "</div></div>"
+              html +=
+                "<div class='task'><div class='left-control " +
+                color +
+                "'><div class='button' id='button-" +
+                id +
+                "'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 10'><path fill-rule='evenodd' d='M4.662 9.832c-.312 0-.61-.123-.831-.344L0 5.657l1.662-1.662 2.934 2.934L10.534 0l1.785 1.529-6.764 7.893a1.182 1.182 0 0 1-.848.409l-.045.001'></path></svg></div></div><div class='content'><div class='title' id='task_title'>" +
+                text +
+                "</div>" +
+                list +
+                "</div></div>";
               console.log("added task");
               ids.push(id);
             }
           }
-          break
+          break;
         case 2:
           var title = "Habits";
           for (i = 0; i < data.length; i++) {
@@ -280,64 +324,75 @@ function displayData() {
                 switch (key) {
                   case "text":
                     text = value;
-                    break
+                    break;
                   case "checklist":
                     checklist_o = value;
-                    break
+                    break;
                   case "id":
                     id = value;
-                    break
+                    break;
                   case "value":
                     health = value;
-                    break
+                    break;
                   case "up":
                     up = value;
-                    break
+                    break;
                   case "down":
                     down = value;
-                    break
+                    break;
                 }
               }
               if (!up) {
                 colorU = "task-disabled-task";
               } else {
                 if (health > 11) {
-                  colorU = "task-"
+                  colorU = "task-";
                 } else if (health > 5) {
-                  colorU = "task-better"
+                  colorU = "task-better";
                 } else if (health > 0) {
-                  colorU = "task-good"
+                  colorU = "task-good";
                 } else if (health == 0) {
-                  colorU = "task-neutral"
+                  colorU = "task-neutral";
                 } else if (health > -9) {
-                  colorU = "task-bad"
+                  colorU = "task-bad";
                 } else if (health > -16) {
-                  colorU = "task-worse"
+                  colorU = "task-worse";
                 } else {
-                  colorU = "task-worst"
+                  colorU = "task-worst";
                 }
               }
               if (!down) {
                 colorD = "task-disabled-task";
               } else {
                 if (health > 11) {
-                  colorD = "task-best"
+                  colorD = "task-best";
                 } else if (health > 5) {
-                  colorD = "task-better"
+                  colorD = "task-better";
                 } else if (health > 0) {
-                  colorD = "task-good"
+                  colorD = "task-good";
                 } else if (health == 0) {
-                  colorD = "task-neutral"
+                  colorD = "task-neutral";
                 } else if (health > -9) {
-                  colorD = "task-bad"
+                  colorD = "task-bad";
                 } else if (health > -16) {
-                  colorD = "task-worse"
+                  colorD = "task-worse";
                 } else {
-                  colorD = "task-worst"
+                  colorD = "task-worst";
                 }
               }
               //construct html
-              html += "<div class='habit'><div class='left-control " + colorU + "'><div class='habit-up' id='button-" + id + "'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><path fill-rule='evenodd' d='M6 4V0H4v4H0v2h4v4h2V6h4V4H6z'></path></svg></div></div><div class='content'><div class='title' id='task_title'>" + text + "</div></div><div class='right-control " + colorD + "'><div class='habit-down' id='button-" + id + "'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 2'><path fill-rule='evenodd' d='M0 0h10v2H0z'></path></svg></div></div></div>"
+              html +=
+                "<div class='habit'><div class='left-control " +
+                colorU +
+                "'><div class='habit-up' id='button-" +
+                id +
+                "'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><path fill-rule='evenodd' d='M6 4V0H4v4H0v2h4v4h2V6h4V4H6z'></path></svg></div></div><div class='content'><div class='title' id='task_title'>" +
+                text +
+                "</div></div><div class='right-control " +
+                colorD +
+                "'><div class='habit-down' id='button-" +
+                id +
+                "'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 2'><path fill-rule='evenodd' d='M0 0h10v2H0z'></path></svg></div></div></div>";
               console.log("added task");
               ids.push(id);
             }
@@ -348,23 +403,25 @@ function displayData() {
       console.log("changed html");
       //EventListeners for opening/closing of checklists (and in future completing tasks)
       for (i = 0; i < ids.length; i++) {
-        id = ids[i]
+        id = ids[i];
         var lbutton = document.getElementById("lbutton-" + id);
         if (lbutton !== null) {
-          lbutton.addEventListener('click', function(e) {
-            var list = document.getElementById(e.target.id.replace('lbutton', 'list'));
+          lbutton.addEventListener("click", function (e) {
+            var list = document.getElementById(
+              e.target.id.replace("lbutton", "list")
+            );
             if (list.style.display === "block") {
               list.style.display = "none";
             } else {
-              list.style.display = "block"
+              list.style.display = "block";
             }
           });
         }
         //EventListeners for scoring tasks
         var button = document.getElementById("button-" + id);
-        button.addEventListener('click', function(e) {
+        button.addEventListener("click", function (e) {
           var button = e.target.parentNode;
-          id = button.id.replace('button-', '');
+          id = button.id.replace("button-", "");
           switch (button.className) {
             case "button":
               direction = "up";
@@ -373,19 +430,23 @@ function displayData() {
               direction = "up";
               break;
             case "habit-down":
-              direction = "down"
+              direction = "down";
           }
           $.ajax({
-            url: 'https://habitica.com/api/v3/tasks/' + id + '/score/' + direction,
-            type: 'POST',
+            url:
+              "https://habitica.com/api/v3/tasks/" + id + "/score/" + direction,
+            type: "POST",
             cache: false,
-            dataType: 'json',
-            beforeSend: function(xhr) {
-              xhr.setRequestHeader('x-client', '456b5feb-bd5c-4046-b5b3-83606a1f6a76-HabitcaQuickAccess');
-              xhr.setRequestHeader('x-api-user', playerUserID);
-              xhr.setRequestHeader('x-api-key',  playerAPItoken);
+            dataType: "json",
+            beforeSend: function (xhr) {
+              xhr.setRequestHeader(
+                "x-client",
+                "d2195ddc-a540-4dad-b3d5-34fb1ba8d319-HabitcaQuickAccess"
+              );
+              xhr.setRequestHeader("x-api-user", playerUserID);
+              xhr.setRequestHeader("x-api-key", playerAPItoken);
             },
-            success: function() {
+            success: function () {
               if (button.className == "button") {
                 button.parentNode.parentNode.style.display = "none";
               }
@@ -416,50 +477,58 @@ function displayData() {
                 MpDelta = "";
                 Mcollection = "";
                 if (pDelta) MpDelta = ", dealt " + pDelta + " Damage";
-                if (collection) Mcollection = ", got " + collection + " Quest items";
+                if (collection)
+                  Mcollection = ", got " + collection + " Quest items";
                 alert("You got " + delta + "Exp" + MpDelta + Mcollection);
               }
-              window.setTimeout(update(), 500)
-            }
+              window.setTimeout(update(), 500);
+            },
           });
         });
-
       }
 
       for (i = 0; i < lcids.length; i++) {
         id = lcids[i];
-        var lbutton = document.getElementById('litem-' + id);
+        var lbutton = document.getElementById("litem-" + id);
         lbutton.checked = true;
       }
       //EventListeners for checking/unchecking checkboxes
       for (i = 0; i < lids.length; i++) {
         id = lids[i];
         var lbutton = document.getElementById("litem-" + id);
-        lbutton.addEventListener('click', function(e) {
+        lbutton.addEventListener("click", function (e) {
           item = document.getElementById(e.target.id);
-          lid = e.target.id.replace('litem-', '');
-          id = item.parentNode.parentNode.id.replace('list-', '');
+          lid = e.target.id.replace("litem-", "");
+          id = item.parentNode.parentNode.id.replace("list-", "");
           checked = item.checked;
           $.ajax({
-            url: 'https://habitica.com/api/v3/tasks/' + id + '/checklist/' + lid + '/score',
-            type: 'POST',
+            url:
+              "https://habitica.com/api/v3/tasks/" +
+              id +
+              "/checklist/" +
+              lid +
+              "/score",
+            type: "POST",
             cache: false,
-            dataType: 'json',
-            beforeSend: function(xhr) {
-              xhr.setRequestHeader('x-client', '456b5feb-bd5c-4046-b5b3-83606a1f6a76-HabitcaQuickAccess');
-              xhr.setRequestHeader('x-api-user', playerUserID);
-              xhr.setRequestHeader('x-api-key',  playerAPItoken);
+            dataType: "json",
+            beforeSend: function (xhr) {
+              xhr.setRequestHeader(
+                "x-client",
+                "d2195ddc-a540-4dad-b3d5-34fb1ba8d319-HabitcaQuickAccess"
+              );
+              xhr.setRequestHeader("x-api-user", playerUserID);
+              xhr.setRequestHeader("x-api-key", playerAPItoken);
             },
-            success: item.checked = !checked,
-            error: item.checked = checked,
+            success: (item.checked = !checked),
+            error: (item.checked = checked),
           });
         });
       }
-    })
+    });
   }
 }
 function errorlog() {
-  console.log('Auth Error');
+  console.log("Auth Error");
   var form = document.getElementById("tokens");
   form.style.display = "block";
 }
@@ -469,10 +538,10 @@ function setDetails() {
   UserID = document.forms["tokens"]["ID"].value;
   APItoken = document.forms["tokens"]["API"].value;
 
-  chrome.storage.sync.set({userid: UserID}, function() {
-    console.log('User ID is set to ' + UserID)
+  chrome.storage.sync.set({ userid: UserID }, function () {
+    console.log("User ID is set to " + UserID);
   });
-  chrome.storage.sync.set({token: APItoken}, function() {
-    console.log('API token is set')
-  })
+  chrome.storage.sync.set({ token: APItoken }, function () {
+    console.log("API token is set");
+  });
 }
